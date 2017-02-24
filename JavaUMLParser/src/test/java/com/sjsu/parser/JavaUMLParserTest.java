@@ -1,5 +1,7 @@
 package com.sjsu.parser;
 
+import java.io.File;
+
 import javax.annotation.Nonnull;
 
 import org.junit.Assert;
@@ -15,5 +17,7 @@ public class JavaUMLParserTest {
 	public void testApp() {
 		LOGGER.error("This test will pass.");
 		Assert.assertTrue(true);
+		File[] files = JavaUMLParser.readFileFolder("D:/Java/Programs/exception");
+		JavaUMLParser.parse(files);
 	}
 }
