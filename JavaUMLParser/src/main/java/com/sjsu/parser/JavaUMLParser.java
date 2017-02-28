@@ -35,7 +35,7 @@ public class JavaUMLParser {
 		String source = ".\\src\\test\\resources\\Test-Case-0";
 		File[] files = readFileFolder(source);
 		parse(source, files);
-		
+
 	}
 
 	public static File[] readFileFolder(String folderPath) {
@@ -66,9 +66,9 @@ public class JavaUMLParser {
 		}
 		return javaFiles;
 	}
-	
+
 	public static String parse(String sourceFolder, File[] files){
-		
+
 		JavaParser javaParser = new JavaParser();
 		for(File file : files) {
 			try {
@@ -83,7 +83,7 @@ public class JavaUMLParser {
 				String outputFileName = sourceFolder+ "\\output.png";
 				String outoutFile = sourceStringReader.generateImage(new FileOutputStream(outputFileName), new FileFormatOption(FileFormat.PNG));
 				System.out.println("Image generated is " + outoutFile);
-				
+
 			} catch (FileNotFoundException e) {
 				LOGGER.error(e.getMessage());
 				e.printStackTrace();
@@ -91,12 +91,12 @@ public class JavaUMLParser {
 				LOGGER.error(e.getMessage());
 				e.printStackTrace();
 			}
-			
+
 		}
-		
-		
+
+
 		return null;
-		
+
 	}
 
 	/**
