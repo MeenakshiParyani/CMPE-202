@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 import javax.annotation.Nonnull;
 
@@ -13,16 +14,27 @@ import org.slf4j.LoggerFactory;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
+import net.sourceforge.plantuml.FileFormat;
+import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.SourceStringReader;
+
+/**
+ * @author Meenakshi
+ *
+ */
 @Nonnull
 public class JavaUMLParser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaUMLParser.class);
+	public static StringBuilder finalUML = new StringBuilder();
 
 	public static void main(String[] args) {
 		checkArgument(args != null, "Expected not null arguments.");
 		LOGGER.info("Hello World!");
-		File[] files = readFileFolder("D:/Java/Programs/exception");
-		parse(files);
+		String source = ".\\src\\test\\resources\\Test-Case-0";
+		File[] files = readFileFolder(source);
+		parse(source, files);
 		
 	}
 
@@ -55,7 +67,7 @@ public class JavaUMLParser {
 		return javaFiles;
 	}
 	
-	public static String parse(File[] files){
+	public static String parse(String sourceFolder, File[] files){
 		
 		JavaParser javaParser = new JavaParser();
 		for(File file : files) {
@@ -64,7 +76,14 @@ public class JavaUMLParser {
 				if(compilationUnit.getPackageDeclaration() != null && 
 						compilationUnit.getPackageDeclaration().isPresent())
 					throw new Exception("All Java Files should be in Default folder");
-				System.out.println(compilationUnit.toString());
+				ClassOrInterfaceDeclaration classOrInterfaceDeclaration = compilationUnit.getNodesByType(ClassOrInterfaceDeclaration.class).get(0);
+				//com.github.javaparser.ast.body.
+				finalUML.append(UMLGenerator.getClassOrInterfaceUML(classOrInterfaceDeclaration));
+				SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
+				String outputFileName = sourceFolder+ "\\output.png";
+				String outoutFile = sourceStringReader.generateImage(new FileOutputStream(outputFileName), new FileFormatOption(FileFormat.PNG));
+				System.out.println("Image generated is " + outoutFile);
+				
 			} catch (FileNotFoundException e) {
 				LOGGER.error(e.getMessage());
 				e.printStackTrace();
