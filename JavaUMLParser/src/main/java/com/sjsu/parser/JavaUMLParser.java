@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -33,12 +36,63 @@ public class JavaUMLParser {
 		checkArgument(args != null, "Expected not null arguments.");
 		LOGGER.info("Hello World!");
 		String source = ".\\src\\test\\resources\\Test-Case-0";
-		File[] files = readFileFolder(source);
-		parse(source, files);
+		String outputFile = "output.png";
+		parse(source, outputFile);
 
 	}
 
-	public static File[] readFileFolder(String folderPath) {
+	/**
+	 * Parses the Java source files and generates the UML class diagram
+	 * 
+	 * @param sourceFolder
+	 * @param outputFile
+	 * @return
+	 */
+	public static String parse(String sourceFolder, String outputFile){
+		File[] files = readFileFolder(sourceFolder);
+		String outoutFile = "";
+		List<ClassOrInterfaceDeclaration> classOrInterfaces = new ArrayList<ClassOrInterfaceDeclaration>();
+
+		try {
+			for(File file : files) {
+				CompilationUnit compilationUnit = JavaParser.parse(file);
+				if(compilationUnit.getPackageDeclaration() != null && 
+						compilationUnit.getPackageDeclaration().isPresent())
+					throw new Exception("All Java Files should be in Default folder");
+				ClassOrInterfaceDeclaration classOrInterfaceDeclaration = compilationUnit.getNodesByType(ClassOrInterfaceDeclaration.class).get(0);
+				classOrInterfaces.add(classOrInterfaceDeclaration);
+				//com.github.javaparser.ast.body.
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			e.printStackTrace();
+		}
+
+
+
+		try{
+			finalUML.append(UMLGenerator.getClassOrInterfaceUML(classOrInterfaces));
+			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
+			String outputFileName = sourceFolder+ "\\output.png";
+			outoutFile = sourceStringReader.generateImage(new FileOutputStream(outputFileName), new FileFormatOption(FileFormat.PNG));
+
+		}catch(FileNotFoundException e){
+			LOGGER.error(e.getMessage());
+			e.printStackTrace();
+		}catch(IOException e){
+			LOGGER.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return "Image generated is " + outoutFile;
+	}
+
+	/**
+	 * Returns the Java source files in the given folderpath
+	 * 
+	 * @param folderPath
+	 * @return
+	 */
+	private static File[] readFileFolder(String folderPath) {
 		File folder = new File(folderPath);
 		File[] javaFiles = new File[0];
 		try {
@@ -67,37 +121,6 @@ public class JavaUMLParser {
 		return javaFiles;
 	}
 
-	public static String parse(String sourceFolder, File[] files){
-
-		JavaParser javaParser = new JavaParser();
-		for(File file : files) {
-			try {
-				CompilationUnit compilationUnit = JavaParser.parse(file);
-				if(compilationUnit.getPackageDeclaration() != null && 
-						compilationUnit.getPackageDeclaration().isPresent())
-					throw new Exception("All Java Files should be in Default folder");
-				ClassOrInterfaceDeclaration classOrInterfaceDeclaration = compilationUnit.getNodesByType(ClassOrInterfaceDeclaration.class).get(0);
-				//com.github.javaparser.ast.body.
-				finalUML.append(UMLGenerator.getClassOrInterfaceUML(classOrInterfaceDeclaration));
-				SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
-				String outputFileName = sourceFolder+ "\\output.png";
-				String outoutFile = sourceStringReader.generateImage(new FileOutputStream(outputFileName), new FileFormatOption(FileFormat.PNG));
-				System.out.println("Image generated is " + outoutFile);
-
-			} catch (FileNotFoundException e) {
-				LOGGER.error(e.getMessage());
-				e.printStackTrace();
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-				e.printStackTrace();
-			}
-
-		}
-
-
-		return null;
-
-	}
 
 	/**
 	 * @param pathname
