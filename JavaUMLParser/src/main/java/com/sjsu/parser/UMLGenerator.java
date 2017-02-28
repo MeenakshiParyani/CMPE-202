@@ -15,17 +15,24 @@ import com.github.javaparser.ast.body.MethodDeclaration;
  */
 public class UMLGenerator {
 	
-	public static String getClassOrInterfaceUML(ClassOrInterfaceDeclaration classOrInterface){
+	public static String getClassOrInterfaceUML(List<ClassOrInterfaceDeclaration> classOrInterfaces){
+
 		StringBuilder builder = new StringBuilder("@startuml\n");
-		List<FieldDeclaration> fields = classOrInterface.getFields();
-		List<MethodDeclaration> methods = classOrInterface.getMethods();
-		if(classOrInterface.isInterface()){
+
+		for(ClassOrInterfaceDeclaration classOrInterface : classOrInterfaces) {
+			List<FieldDeclaration> fields = classOrInterface.getFields();
+			List<MethodDeclaration> methods = classOrInterface.getMethods();
+			if(classOrInterface.isInterface()){
+
+			}else {
+				builder.append("class " + classOrInterface.getNameAsString() + " { \n");
+				getFieldsUML(builder, fields);
+				getMethodsUML(builder, methods);
+				builder.append("\n}\n");
+			}
 			
-		}else {
-			builder.append("class " + classOrInterface.getNameAsString() + " { \n");
-			getFieldsUML(builder, fields);
-			getMethodsUML(builder, methods);
-			builder.append("\n}\n");
+
+
 		}
 		builder.append("@enduml");
 		return builder.toString();
