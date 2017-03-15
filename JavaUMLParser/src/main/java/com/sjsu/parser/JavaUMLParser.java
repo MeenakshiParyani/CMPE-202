@@ -76,7 +76,7 @@ public class JavaUMLParser {
 
 
 		try{
-			UMLGenerator generator = new UMLGenerator();
+			UMLGenerator generator = new UMLGenerator(); 
 			finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
