@@ -10,5 +10,21 @@ package com.sjsu.parser;
  *
  */
 public enum Association {
-	ONE_TO_ONE, ONE_TO_MANY, MANY_TO_ONE, MANY_TO_MANY
+	
+	ONE_TO_ONE(" \"1\" -- \"1\" "), 
+	ONE_TO_MANY(" \"1\" -- \"*\" ");
+	//MANY_TO_ONE(" \"*\" -- \"1\" "), 
+	//MANY_TO_MANY(" \"*\" -- \"*\" ");
+	
+	private String symbol;
+	
+	Association(String symbol) {
+		this.symbol = symbol;
+	}
+	
+	public String getSymbol(){
+		return symbol;
+	}
+	
+	
 }
