@@ -76,6 +76,7 @@ public class JavaUMLParser {
 
 		try{
 			UMLGenerator generator = new UMLGenerator();
+			//finalUML.append(getStaticUML());
 			finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
@@ -130,5 +131,50 @@ public class JavaUMLParser {
 	 */
 	private static boolean isJavaFile(File pathname) {
 		return pathname.getName().toLowerCase().endsWith(".java");
+	}
+	
+	public static String getStaticUML(){
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("@startuml");
+		/*builder.append("\ninterface B");
+		builder.append("\nclass A extends V implements B");
+		builder.append("\n}");*/
+		/*builder.append("\ninterface Mary");
+		builder.append("\nabstract class MaryImpl implements Mary");
+		builder.append("\ninterface Bob");
+		builder.append("\nclass BobtImpl extends MaryImpl implements Bob");*/
+		//builder.append("\ncomponent Something {");
+		//builder.append("\ncomponent Provider");
+		//builder.append("\ninterface A2");
+		//builder.append("\nB2 - A2");
+		//builder.append("\n}");
+		//builder.append("\ncomponent SomethingElse {");
+		//builder.append("\ncomponent User");
+		//builder.append("\n A2 )- C2");
+		//builder.append("\n}");
+		builder.append("\ninterface A1");
+		builder.append("\ninterface A2");
+		builder.append("\nclass B1 extends P implements A1 {");
+		builder.append("\n}");
+		builder.append("\nclass B2 extends P implements A1,A2 {");
+		builder.append("\n}");
+		builder.append("\nclass C1 {");
+		builder.append("\n+test : void()");
+		builder.append("\n}");
+		builder.append("\nclass C2 {");
+		builder.append("\n+test : void()");
+		builder.append("\n}");
+		builder.append("\nclass P {");
+		builder.append("\n}");
+		builder.append("\nB1 -0)- A1");
+		builder.append("\nB2 -0)- A1");
+		builder.append("\nB2 -0)- A2");
+		builder.append("\nC1 -0)- A1");
+		builder.append("\n C2 -0)- A2");
+		builder.append("\n@enduml");
+		System.out.println(builder.toString());
+		return builder.toString();
+		
 	}
 }

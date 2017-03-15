@@ -8,11 +8,15 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
+import com.github.javaparser.symbolsolver.model.declarations.InterfaceDeclaration;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 
 /**
@@ -22,39 +26,64 @@ import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 public class UMLGenerator {
 	
 	ArrayList<String> umlRelations = new ArrayList<String>();
-	ArrayList<String[]> classRelations = new ArrayList<String[]>();
 	public String getClassOrInterfaceUML(List<ClassOrInterfaceDeclaration> classOrInterfaces){
 		
 		StringBuilder builder = new StringBuilder("@startuml");
 		
 		for(ClassOrInterfaceDeclaration classOrInterface : classOrInterfaces) {
 			List<MethodDeclaration> methods = classOrInterface.getMethods();
-			if(classOrInterface.isInterface()){
-				classOrInterface.getAncestorOfType(Object.class);
-				classOrInterface.getExtendedTypes();
-			}else {
-				builder.append("\n class " + classOrInterface.getNameAsString() + " { \n");
+				getClassOrInterfaceUML(builder, classOrInterface);
 				getFieldsUML(builder, classOrInterface);
-				getMethodsUML(builder, methods);
-				builder.append("\n}\n");
-			}
-			
-
-
+				getMethodsUML(builder, classOrInterface);
+				addClosingUML(builder, classOrInterface);
 		}
-		addClassRelationships(builder, umlRelations);
+		addClassOrInterfaceRelations(builder, umlRelations);
 		builder.append("\n@enduml");
 		System.out.println(builder.toString());
 		return builder.toString();
 	}
+
+	/**
+	 * @param builder
+	 */
+	private void addClosingUML(StringBuilder builder, ClassOrInterfaceDeclaration classOrInterface) {
+		if(!classOrInterface.isInterface())
+			builder.append("\n}\n");
+	}
+
+	/**
+	 * @param builder
+	 * @param classOrInterface
+	 */
+	private void getClassOrInterfaceUML(StringBuilder builder, ClassOrInterfaceDeclaration classOrInterface) {
+		String classOrInterfaceName = classOrInterface.getNameAsString();
+		if(classOrInterface.isInterface())
+			builder.append("\ninterface " + classOrInterfaceName);
+		else {
+			NodeList<ClassOrInterfaceType> exntendedTypes = classOrInterface.getExtendedTypes();
+			NodeList<ClassOrInterfaceType> implementedTypes = classOrInterface.getImplementedTypes();
+			builder.append("\nclass " + classOrInterfaceName);
+			exntendedTypes.stream().forEach(node -> builder.append(RelationshipTypes.EXTENDS.getSymbol() + node.getNameAsString()));
+			if(!implementedTypes.isEmpty()){
+				builder.append(RelationshipTypes.IMPLEMENTS.getSymbol());
+				builder.append(StringUtils.join(implementedTypes.iterator(), ','));
+				implementedTypes.stream().forEach(node -> 
+				{
+					//checkAndAddRelationships(node.getNameAsString(), classOrInterfaceName ,RelationshipTypes.PROVIDES, "");
+				});
+			}
+			builder.append(" {");
+		}
+	}
 	
+
 	/**
 	 * To add class relationships
 	 * 
 	 * @param builder
 	 * @param classRelations
 	 */
-	private void addClassRelationships(StringBuilder builder, ArrayList<String> classRelations) {
+	private void addClassOrInterfaceRelations(StringBuilder builder, ArrayList<String> classRelations) {
 		for(String relation : classRelations){
 			builder.append("\n" + relation); 
 		}
@@ -80,11 +109,11 @@ public class UMLGenerator {
 				String containedClass;
 				if(className.startsWith("Collection")){
 					containedClass = StringUtils.substringBetween(className, "<", ">");
-					checkForExistingRelationships(containingClass, containedClass, Association.ONE_TO_MANY);
+					checkAndAddRelationships(containingClass, containedClass, AssociationTypes.ONE_TO_MANY,"has");
 
 				}else {
 					containedClass = className;
-					checkForExistingRelationships(containingClass, className, Association.ONE_TO_ONE);
+					checkAndAddRelationships(containingClass, className, AssociationTypes.ONE_TO_ONE, "");
 				}
 			}else {
 				if(field.isPrivate()){
@@ -104,22 +133,33 @@ public class UMLGenerator {
 	 * @param containingClass
 	 * @param containedClass
 	 */
-	private void checkForExistingRelationships(String containingClass, String containedClass, Association association) {
+	private void checkAndAddRelationships(String containingClass, String containedClass, Relationships relationships, String label) {
 		SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(containedClass);
 		if(symbolReference.isSolved() && !umlRelations.stream().anyMatch(p -> p.contains(containingClass) && p.contains(containedClass))){
-				umlRelations.add(addClassAssociations(containingClass, containedClass, association));
+				umlRelations.add(containingClass + relationships.getSymbol() + containedClass + " : " + label);
 		}
 	}
 	
-	private void getMethodsUML(StringBuilder builder, List<MethodDeclaration> methods) {
+	private void getMethodsUML(StringBuilder builder, ClassOrInterfaceDeclaration classOrInterface) {
+		List<MethodDeclaration> methods = classOrInterface.getMethods();
 		methods.stream().filter(method -> method.isPublic());
 		for(MethodDeclaration method : methods){
 			builder.append("\n +" + method.getNameAsString() + " : " + method.getType() + "()");
+			NodeList<Parameter> parameters = method.getParameters();
+			parameters.stream().forEach(parameter -> 
+			{	
+				SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(parameter.getType().toString());
+				if(symbolReference.isSolved()){
+					if(symbolReference.getCorrespondingDeclaration() instanceof InterfaceDeclaration)
+						checkAndAddRelationships(classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipTypes.USES, "uses");
+					else
+						checkAndAddRelationships(classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipTypes.USES, "uses");
+				}
+							
+			
+			});
 		}
 	}
 	
-	private static String addClassAssociations(String class1, String class2, Association association){
-		String uml = class1 + association.getSymbol() + class2;
-		return uml;
-	}
+	
 }
