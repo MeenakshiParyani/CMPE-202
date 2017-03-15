@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -31,7 +34,8 @@ import net.sourceforge.plantuml.SourceStringReader;
 public class JavaUMLParser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaUMLParser.class);
 	public static StringBuilder finalUML = new StringBuilder();
-
+	public static CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
+	
 	public static void main(String[] args) {
 		checkArgument(args != null, "Expected not null arguments.");
 		LOGGER.info("Hello World!");
@@ -50,6 +54,7 @@ public class JavaUMLParser {
 	 */
 	public static String parse(String sourceFolder, String outputFile){
 		File[] files = readFileFolder(sourceFolder);
+		combinedTypeSolver.add(new JavaParserTypeSolver(new File(sourceFolder)));
 		String outoutFile = "";
 		List<ClassOrInterfaceDeclaration> classOrInterfaces = new ArrayList<ClassOrInterfaceDeclaration>();
 
@@ -71,7 +76,8 @@ public class JavaUMLParser {
 
 
 		try{
-			finalUML.append(UMLGenerator.getClassOrInterfaceUML(classOrInterfaces));
+			UMLGenerator generator = new UMLGenerator();
+			finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
 			outoutFile = sourceStringReader.generateImage(new FileOutputStream(outputFileName), new FileFormatOption(FileFormat.PNG));
