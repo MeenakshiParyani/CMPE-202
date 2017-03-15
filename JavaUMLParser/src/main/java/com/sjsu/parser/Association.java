@@ -11,8 +11,8 @@ package com.sjsu.parser;
  */
 public enum Association {
 	
-	ONE_TO_ONE(" \"1\" -- \"1\" "), 
-	ONE_TO_MANY(" \"1\" -- \"*\" ");
+	ONE_TO_ONE(" \" \" -- \"1\" "), 
+	ONE_TO_MANY(" \" \" -- \"0..*\" ");
 	//MANY_TO_ONE(" \"*\" -- \"1\" "), 
 	//MANY_TO_MANY(" \"*\" -- \"*\" ");
 	

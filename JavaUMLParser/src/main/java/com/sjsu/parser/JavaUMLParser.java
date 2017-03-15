@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,18 +29,19 @@ import net.sourceforge.plantuml.SourceStringReader;
  * @author Meenakshi
  *
  */
-@Nonnull
 public class JavaUMLParser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaUMLParser.class);
-	public static StringBuilder finalUML = new StringBuilder();
+	public StringBuilder finalUML = new StringBuilder();
+	public static String libs = System.getProperty("java.home") + "\\lib";
 	public static CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
-	
+
 	public static void main(String[] args) {
 		checkArgument(args != null, "Expected not null arguments.");
 		LOGGER.info("Hello World!");
 		String source = ".\\src\\test\\resources\\Test-Case-0";
 		String outputFile = "output.png";
-		parse(source, outputFile);
+		JavaUMLParser javaUMLParser = new JavaUMLParser();
+		javaUMLParser.parse(source, outputFile);
 
 	}
 
@@ -52,8 +52,9 @@ public class JavaUMLParser {
 	 * @param outputFile
 	 * @return
 	 */
-	public static String parse(String sourceFolder, String outputFile){
+	public String parse(String sourceFolder, String outputFile){
 		File[] files = readFileFolder(sourceFolder);
+		combinedTypeSolver.add(new JavaParserTypeSolver(new File(libs)));
 		combinedTypeSolver.add(new JavaParserTypeSolver(new File(sourceFolder)));
 		String outoutFile = "";
 		List<ClassOrInterfaceDeclaration> classOrInterfaces = new ArrayList<ClassOrInterfaceDeclaration>();
@@ -73,15 +74,14 @@ public class JavaUMLParser {
 			e.printStackTrace();
 		}
 
-
-
 		try{
-			UMLGenerator generator = new UMLGenerator(); 
+			UMLGenerator generator = new UMLGenerator();
 			finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
-			outoutFile = sourceStringReader.generateImage(new FileOutputStream(outputFileName), new FileFormatOption(FileFormat.PNG));
-
+			FileOutputStream fileOutputStream = new FileOutputStream(outputFileName);
+			outoutFile = sourceStringReader.generateImage(fileOutputStream, new FileFormatOption(FileFormat.PNG));
+			fileOutputStream.close();
 		}catch(FileNotFoundException e){
 			LOGGER.error(e.getMessage());
 			e.printStackTrace();
@@ -103,20 +103,16 @@ public class JavaUMLParser {
 		File[] javaFiles = new File[0];
 		try {
 			FileFilter fileFilter = new FileFilter() {
-
 				@Override
 				public boolean accept(File pathname) {
 					if(isJavaFile(pathname))
 						return true;
 					return false;
 				}
-
-
 			};
 			javaFiles = folder.listFiles(fileFilter);
 			if(javaFiles.length == 0)
 				throw new Exception("No Java Files Found in specified folder");
-
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Please enter valid source folder location");
 			e.printStackTrace();

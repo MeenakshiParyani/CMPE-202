@@ -22,10 +22,20 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="src/main/resources/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/java-symbol-solver-core.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/javaparser-core.jar" sourcepath="src/main/resources/lib/javaparser-core-sources.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/plantuml.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/google-collections.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/java-symbol-solver-logic.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/java-symbol-solver-model.jar" sourcepath="C:/Users/Meenakshi/.m2/repository/com/github/javaparser/java-symbol-solver-model/0.5.2/java-symbol-solver-model-0.5.2-sources.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/junit.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/util-java.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/jcl-over-slf4j.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/log4j.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/slf4j-jdk.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/javaparser-core-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -12,6 +12,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 
 /**
@@ -24,7 +25,7 @@ public class UMLGenerator {
 	ArrayList<String[]> classRelations = new ArrayList<String[]>();
 	public String getClassOrInterfaceUML(List<ClassOrInterfaceDeclaration> classOrInterfaces){
 		
-		StringBuilder builder = new StringBuilder("@startuml\n");
+		StringBuilder builder = new StringBuilder("@startuml");
 		
 		for(ClassOrInterfaceDeclaration classOrInterface : classOrInterfaces) {
 			List<MethodDeclaration> methods = classOrInterface.getMethods();
@@ -32,7 +33,7 @@ public class UMLGenerator {
 				classOrInterface.getAncestorOfType(Object.class);
 				classOrInterface.getExtendedTypes();
 			}else {
-				builder.append("class " + classOrInterface.getNameAsString() + " { \n");
+				builder.append("\n class " + classOrInterface.getNameAsString() + " { \n");
 				getFieldsUML(builder, classOrInterface);
 				getMethodsUML(builder, methods);
 				builder.append("\n}\n");
@@ -42,7 +43,7 @@ public class UMLGenerator {
 
 		}
 		addClassRelationships(builder, umlRelations);
-		builder.append("@enduml");
+		builder.append("\n@enduml");
 		System.out.println(builder.toString());
 		return builder.toString();
 	}
@@ -55,7 +56,7 @@ public class UMLGenerator {
 	 */
 	private void addClassRelationships(StringBuilder builder, ArrayList<String> classRelations) {
 		for(String relation : classRelations){
-			builder.append(relation + "\n"); 
+			builder.append("\n" + relation); 
 		}
 	}
 
@@ -71,9 +72,11 @@ public class UMLGenerator {
 		List<FieldDeclaration> fields = classOrInterface.getFields();
 		fields.stream().filter(field -> field.isPrivate() || field.isPublic());
 		for(FieldDeclaration field : fields) {
-			if(field.getElementType().getClass().equals(ClassOrInterfaceType.class)){
+			String className = field.getVariable(0).getType().toString();
+			field.getCommonType().getClass().equals(ReferenceType.class);
+			SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(field.getCommonType().toString());
+			if(symbolReference.isSolved() || className.startsWith("Collection")){
 				String containingClass = classOrInterface.getNameAsString();
-				String className = field.getVariable(0).getType().toString();
 				String containedClass;
 				if(className.startsWith("Collection")){
 					containedClass = StringUtils.substringBetween(className, "<", ">");
