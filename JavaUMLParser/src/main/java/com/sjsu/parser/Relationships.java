@@ -10,5 +10,6 @@ package com.sjsu.parser;
 public interface Relationships {
 	
 	public String getSymbol();
+	public String getLabel();
 
 }
