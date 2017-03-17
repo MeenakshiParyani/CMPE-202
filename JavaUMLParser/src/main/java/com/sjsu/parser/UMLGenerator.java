@@ -109,7 +109,7 @@ public class UMLGenerator {
 				String containedClass;
 				if(className.startsWith("Collection")){
 					containedClass = StringUtils.substringBetween(className, "<", ">");
-					checkAndAddRelationships(containingClass, containedClass, AssociationTypes.ONE_TO_MANY,"has");
+					checkAndAddRelationships(containingClass, containedClass, AssociationTypes.ONE_TO_MANY, "");
 
 				}else {
 					containedClass = className;
@@ -136,7 +136,10 @@ public class UMLGenerator {
 	private void checkAndAddRelationships(String containingClass, String containedClass, Relationships relationships, String label) {
 		SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(containedClass);
 		if(symbolReference.isSolved() && !umlRelations.stream().anyMatch(p -> p.contains(containingClass) && p.contains(containedClass))){
-				umlRelations.add(containingClass + relationships.getSymbol() + containedClass + " : " + label);
+				String relation = containingClass + relationships.getSymbol() + containedClass;
+				if(label != null && label !="")
+					relation = relation + " : " + label;
+				umlRelations.add(relation);
 		}
 	}
 	
