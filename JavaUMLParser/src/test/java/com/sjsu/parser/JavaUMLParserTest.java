@@ -35,4 +35,12 @@ public class JavaUMLParserTest {
 		JavaUMLParser javaUMLParser = new JavaUMLParser();
 		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-2", "output.png");
 	}
+	
+	@Test
+	public void testAppTestCase3() {
+		System.out.println("Working Directory = " +
+	              System.getProperty("user.dir"));
+		JavaUMLParser javaUMLParser = new JavaUMLParser();
+		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-3", "output.png");
+	}
 }
