@@ -26,9 +26,10 @@ import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
  */
 public class UMLGenerator {
 
-	ArrayList<String> umlRelations = new ArrayList<String>();
+	public ArrayList<String> umlRelations = new ArrayList<String>();
+	public final List<ClassOrInterfaceDeclaration> classesOrInterfaces = new ArrayList<>();
 	public String getClassOrInterfaceUML(List<ClassOrInterfaceDeclaration> classOrInterfaces){
-
+		classesOrInterfaces.addAll(classOrInterfaces);
 		StringBuilder builder = new StringBuilder("@startuml");
 
 		for(ClassOrInterfaceDeclaration classOrInterface : classOrInterfaces) {
@@ -47,8 +48,7 @@ public class UMLGenerator {
 	 * @param builder
 	 */
 	private void addClosingUML(StringBuilder builder, ClassOrInterfaceDeclaration classOrInterface) {
-		if(!classOrInterface.isInterface())
-			builder.append("\n}\n");
+		builder.append("\n}\n");
 	}
 
 	/**
@@ -72,8 +72,8 @@ public class UMLGenerator {
 					//checkAndAddRelationships(node.getNameAsString(), classOrInterfaceName ,RelationshipTypes.PROVIDES, "");
 				});
 			}
-			builder.append(" {");
 		}
+		builder.append(" {");
 	}
 
 
@@ -100,7 +100,7 @@ public class UMLGenerator {
 	private void getFieldsUML(StringBuilder builder,  ClassOrInterfaceDeclaration classOrInterface) {
 		List<FieldDeclaration> fields = classOrInterface.getFields();
 		List<FieldDeclaration> filteredFields = new ArrayList<FieldDeclaration>();
-		filteredFields = fields.stream().filter(f -> f.isPrivate() || f.isPublic()).collect(Collectors.toList());
+		filteredFields = fields.stream().filter(f -> f.isPrivate() || f.isPublic() || f.isProtected()).collect(Collectors.toList());
 		for(FieldDeclaration field : filteredFields) {
 			String className = field.getVariable(0).getType().toString();
 			field.getCommonType().getClass().equals(ReferenceType.class);
@@ -114,23 +114,22 @@ public class UMLGenerator {
 
 				}else {
 					containedClass = className;
-					checkAndAddRelationships(containingClass, className, AssociationTypes.ONE_TO_ONE, "");
+					if(OneToManyRelationExists(containedClass, containingClass))
+						checkAndAddRelationships(containingClass, className, AssociationTypes.ONE_TO_ONE, "");
 				}
 			}else {
 				String fieldName = field.getVariable(0).toString();
-				if(field.isPrivate() && !fieldGettersAndSettersExist(classOrInterface, "", fieldName)){
+				if(field.isPrivate() && !isGetterOrSetterMethod(classOrInterface, "", fieldName)){
 					builder.append("\n -" + fieldName + " : " + field.getCommonType());
-				}else{
+				}else if (field.isPublic()){
 					builder.append("\n +" + fieldName + " : " + field.getCommonType());
 				}
 			}
-
-
 		}
 	}
 
 	/**
-	 * Check if the relationship already exists
+	 * Check if the relationship already exists to avoid duplicates
 	 * 
 	 * @param containingClass
 	 * @param containedClass
@@ -148,24 +147,45 @@ public class UMLGenerator {
 	private void getMethodsUML(StringBuilder builder, ClassOrInterfaceDeclaration classOrInterface) {
 		List<MethodDeclaration> methods = classOrInterface.getMethods();
 		List<MethodDeclaration> filteredMethods = new ArrayList<MethodDeclaration>();
-		filteredMethods = methods.stream().filter(method -> method.isPublic() && 
-				!fieldGettersAndSettersExist(classOrInterface, method.getNameAsString(), "")).collect(Collectors.toList());
+		filteredMethods = methods.stream().filter(method -> (method.isPublic() || method.isProtected()) &&
+				!isGetterOrSetterMethod(classOrInterface, method.getNameAsString(), "")).collect(Collectors.toList());
 		for(MethodDeclaration method : filteredMethods){
-			builder.append("\n +" + method.getNameAsString() + " : " + method.getType() + "()");
+			if(method.isPublic() && isNotIncludedInParent(method.getNameAsString(), classOrInterface))
+				builder.append("\n +" + method.getNameAsString() + " : " + method.getType() + "()");
 			NodeList<Parameter> parameters = method.getParameters();
 			parameters.stream().forEach(parameter -> 
 			{	
 				SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(parameter.getType().toString());
 				if(symbolReference.isSolved()){
-					if(symbolReference.getCorrespondingDeclaration() instanceof InterfaceDeclaration)
-						checkAndAddRelationships(classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipTypes.USES, RelationshipTypes.USES.getLabel());
-					else
-						checkAndAddRelationships(classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipTypes.USES, RelationshipTypes.USES.getLabel());
+					//if(symbolReference.getCorrespondingDeclaration() instanceof InterfaceDeclaration)
+					//checkAndAddRelationships(classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipTypes.USES, RelationshipTypes.USES.getLabel());
+					//else
+					checkAndAddRelationships(classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipTypes.USES, RelationshipTypes.USES.getLabel());
 				}
 			});
 		}
 	}
-	
+
+	/**
+	 * To ignore the method if present in parent class/interface
+	 * @param methodName 
+	 * 
+	 * @param classOrInterface
+	 * @return
+	 */
+	private boolean isNotIncludedInParent(String methodName, ClassOrInterfaceDeclaration classOrInterface) {
+		NodeList<ClassOrInterfaceType> implementedTypes =  classOrInterface.getImplementedTypes();
+		for(ClassOrInterfaceType parent : implementedTypes){
+			ClassOrInterfaceDeclaration parentInterface = getClassOrInterfaceByName(parent.getNameAsString());
+			List<MethodDeclaration> parentMethods = parentInterface.getMethods();
+			for(MethodDeclaration parentMethod : parentMethods){
+				if(parentMethod.getNameAsString().equalsIgnoreCase(methodName))
+					return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * For a given field name, checks if the corresponding getter and setter methods exist
 	 * Given a method, like getter and setter, checks if corresponding field exists
@@ -175,8 +195,8 @@ public class UMLGenerator {
 	 * @param fieldName
 	 * @return
 	 */
-	private boolean fieldGettersAndSettersExist(ClassOrInterfaceDeclaration classOrInterface, String methodName, String fieldName) {
-		
+	private boolean isGetterOrSetterMethod(ClassOrInterfaceDeclaration classOrInterface, String methodName, String fieldName) {
+
 		if(fieldName == null || fieldName == ""){
 			String field = "";
 			if(methodName.startsWith("get"))
@@ -194,5 +214,37 @@ public class UMLGenerator {
 		return false;
 	}
 
+	/**
+	 * Get the class or interface declaration by name
+	 * 
+	 * @param classOrInterfaceName
+	 * @return
+	 */
+	public ClassOrInterfaceDeclaration getClassOrInterfaceByName(String classOrInterfaceName){
+		for(ClassOrInterfaceDeclaration classOrInterfaceDeclaration: classesOrInterfaces){
+			if(classOrInterfaceDeclaration.getNameAsString().equalsIgnoreCase(classOrInterfaceName))
+				return classOrInterfaceDeclaration;
+		}
+		return null;
+
+	}
+	
+	public boolean OneToManyRelationExists(String containingClass, String containedClass){
+		for(ClassOrInterfaceDeclaration classOrInterface : classesOrInterfaces){
+			if(classOrInterface.getNameAsString().equalsIgnoreCase(containingClass)){
+				List<FieldDeclaration> fields = classOrInterface.getFields();
+				for(FieldDeclaration field : fields) {
+					String fieldClass = field.getVariable(0).getNameAsString();
+					if(fieldClass.startsWith("Collection")){
+						fieldClass = StringUtils.substringBetween(containedClass, "<", ">");
+						if(fieldClass.equalsIgnoreCase(containedClass))
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}	
+	
 
 }

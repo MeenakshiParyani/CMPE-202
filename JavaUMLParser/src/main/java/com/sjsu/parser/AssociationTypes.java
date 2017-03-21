@@ -11,8 +11,8 @@ package com.sjsu.parser;
  */
 public enum AssociationTypes implements Relationships{
 	
-	ONE_TO_ONE(" \" \" *-- \"1\" ", "has"), 
-	ONE_TO_MANY(" \" \" *-- \"0..*\" ", "");
+	ONE_TO_ONE(" \" \" -- \"1\" ", "has"), 
+	ONE_TO_MANY(" \" \" -- \"0..*\" ", "");
 	//MANY_TO_ONE(" \"*\" -- \"1\" "), 
 	//MANY_TO_MANY(" \"*\" -- \"*\" ");
 	

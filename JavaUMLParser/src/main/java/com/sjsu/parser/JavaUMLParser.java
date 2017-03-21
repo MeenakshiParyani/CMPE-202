@@ -167,11 +167,11 @@ public class JavaUMLParser {
 		builder.append("\n}");
 		builder.append("\nclass P {");
 		builder.append("\n}");
-		builder.append("\nB1 -0)- A1");
-		builder.append("\nB2 -0)- A1");
-		builder.append("\nB2 -0)- A2");
-		builder.append("\nC1 -0)- A1");
-		builder.append("\n C2 -0)- A2");
+		builder.append("\nB1 ()- A1");
+		builder.append("\nB2 ()- A1");
+		builder.append("\nB2 ()- A2");
+		builder.append("\nA1 )-- C1");
+		builder.append("\nA2 )-- C2");
 		builder.append("\n@enduml");
 		System.out.println(builder.toString());
 		return builder.toString();
