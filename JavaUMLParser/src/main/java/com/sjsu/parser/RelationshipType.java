@@ -9,7 +9,7 @@ package com.sjsu.parser;
  * @author Meenakshi
  *
  */
-public enum RelationshipTypes implements Relationships{
+public enum RelationshipType implements Relationship{
 	
 	
 	EXTENDS(" extends ", ""),
@@ -22,7 +22,7 @@ public enum RelationshipTypes implements Relationships{
 	private String symbol;
 	private String label;
 
-	private RelationshipTypes(String symbol, String label){
+	private RelationshipType(String symbol, String label){
 		this.symbol = symbol;
 		this.label = label;
 	}

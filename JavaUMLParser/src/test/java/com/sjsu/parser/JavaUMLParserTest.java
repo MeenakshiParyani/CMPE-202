@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
  */
 public class JavaUMLParserTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaUMLParserTest.class);
+	private static final String basePath = ".\\src\\test\\resources";
 
 	@Test
 	public void testAppTestCase0() {
 		System.out.println("Working Directory = " +
 	              System.getProperty("user.dir"));
 		JavaUMLParser javaUMLParser = new JavaUMLParser();
-		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-0", "output.png");
+		javaUMLParser.parse(basePath + "\\Test-Case-0", "output.png");
 	}
 	
 	@Test
@@ -25,7 +26,7 @@ public class JavaUMLParserTest {
 		System.out.println("Working Directory = " +
 	              System.getProperty("user.dir"));
 		JavaUMLParser javaUMLParser = new JavaUMLParser();
-		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-1", "output.png");
+		javaUMLParser.parse(basePath + "\\Test-Case-1", "output.png");
 	}
 	
 	@Test
@@ -33,7 +34,7 @@ public class JavaUMLParserTest {
 		System.out.println("Working Directory = " +
 	              System.getProperty("user.dir"));
 		JavaUMLParser javaUMLParser = new JavaUMLParser();
-		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-2", "output.png");
+		javaUMLParser.parse(basePath + "\\Test-Case-2", "output.png");
 	}
 	
 	@Test
@@ -41,7 +42,7 @@ public class JavaUMLParserTest {
 		System.out.println("Working Directory = " +
 	              System.getProperty("user.dir"));
 		JavaUMLParser javaUMLParser = new JavaUMLParser();
-		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-3", "output.png");
+		javaUMLParser.parse(basePath + "\\Test-Case-3", "output.png");
 	}
 	
 	@Test
@@ -49,6 +50,6 @@ public class JavaUMLParserTest {
 		System.out.println("Working Directory = " +
 	              System.getProperty("user.dir"));
 		JavaUMLParser javaUMLParser = new JavaUMLParser();
-		javaUMLParser.parse(".\\src\\test\\resources\\Test-Case-4", "output.png");
+		javaUMLParser.parse(basePath + "\\Test-Case-4", "output.png");
 	}
 }
