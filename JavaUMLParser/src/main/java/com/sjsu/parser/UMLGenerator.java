@@ -27,6 +27,7 @@ import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 public class UMLGenerator {
 
 	public ArrayList<String> umlRelations = new ArrayList<String>();
+	public ArrayList<String> umlAssociations = new ArrayList<String>();
 	public final List<ClassOrInterfaceDeclaration> classesOrInterfaces = new ArrayList<>();
 	public String getClassOrInterfaceUML(List<ClassOrInterfaceDeclaration> classOrInterfaces){
 		classesOrInterfaces.addAll(classOrInterfaces);
@@ -39,6 +40,7 @@ public class UMLGenerator {
 			addClosingUML(builder, classOrInterface);
 		}
 		addClassOrInterfaceRelations(builder, umlRelations);
+		addClassOrInterfaceRelations(builder, umlAssociations);
 		builder.append("\n@enduml");
 		System.out.println(builder.toString());
 		return builder.toString();
@@ -134,14 +136,22 @@ public class UMLGenerator {
 	 * @param containingClass
 	 * @param containedClass
 	 */
-	private void checkAndAddRelationships(String containingClass, String containedClass, Relationships relationships, String label) {
-		SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(containedClass);
-		if(symbolReference.isSolved() && !umlRelations.stream().anyMatch(p -> p.contains(containingClass) && p.contains(containedClass))){
-			String relation = containingClass + relationships.getSymbol() + containedClass;
-			if(label != null && label !="")
-				relation = relation + " : " + label;
-			umlRelations.add(relation);
+	private void checkAndAddRelationships(String containingClass, String containedClass, Relationship relationship, String label) {
+		if(relationship instanceof AssociationTypes){
+			if(!umlRelations.stream().anyMatch(p -> p.contains(containingClass) && p.contains(containedClass))){
+				String relation = containingClass + relationship.getSymbol() + containedClass;
+				umlAssociations.add(relation);
+			}
+		}else {
+			SymbolReference symbolReference = JavaUMLParser.combinedTypeSolver.tryToSolveType(containedClass);
+			if(symbolReference.isSolved() && !umlRelations.stream().anyMatch(p -> p.contains(containingClass) && p.contains(containedClass))){
+				String relation = containingClass + relationship.getSymbol() + containedClass;
+				if(label != null && label !="")
+					relation = relation + " : " + label;
+				umlRelations.add(relation);
+			}
 		}
+		
 	}
 
 	private void getMethodsUML(StringBuilder builder, ClassOrInterfaceDeclaration classOrInterface) {

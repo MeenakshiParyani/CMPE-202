@@ -7,7 +7,7 @@ package com.sjsu.parser;
  * @author Meenakshi
  *
  */
-public interface Relationships {
+public interface Relationship {
 	
 	public String getSymbol();
 	public String getLabel();

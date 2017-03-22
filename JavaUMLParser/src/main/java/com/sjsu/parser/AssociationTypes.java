@@ -9,7 +9,7 @@ package com.sjsu.parser;
  * @author Meenakshi
  *
  */
-public enum AssociationTypes implements Relationships{
+public enum AssociationTypes implements Relationship{
 	
 	ONE_TO_ONE(" \" \" -- \"1\" ", "has"), 
 	ONE_TO_MANY(" \" \" -- \"0..*\" ", "");
