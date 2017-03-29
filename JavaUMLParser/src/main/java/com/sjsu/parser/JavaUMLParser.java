@@ -80,6 +80,9 @@ public class JavaUMLParser {
 			finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
+			File file = new File(outputFileName);
+			if(file.exists())
+				file.delete();
 			FileOutputStream fileOutputStream = new FileOutputStream(outputFileName);
 			outoutFile = sourceStringReader.generateImage(fileOutputStream, new FileFormatOption(FileFormat.PNG));
 			fileOutputStream.close();
