@@ -2,4 +2,8 @@
 
 # Java UML Parser
 
-Technology used :- Java
+Technology stack :- Java
+
+Java Code Parsing Library :- JavaParser
+
+UML Diagram Generation Library :- PlantUML
