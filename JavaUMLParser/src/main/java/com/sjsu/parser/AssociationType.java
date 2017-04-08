@@ -3,13 +3,15 @@
  */
 package com.sjsu.parser;
 
+import com.sjsu.uml.UMLRelationship;
+
 /**
  * To track the type of class associations
  * 
  * @author Meenakshi
  *
  */
-public enum AssociationType implements Relationship{
+public enum AssociationType implements UMLRelationship{
 	
 	ONE_TO_ONE(" -- ", "has"), 
 	ONE_TO_MANY(" -- \" *\" ", "");

@@ -20,10 +20,12 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.sjsu.uml.UMLGenerator;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
+import net.sourceforge.plantuml.core.DiagramDescription;
 
 /**
  * @author Meenakshi
@@ -56,7 +58,7 @@ public class JavaUMLParser {
 		File[] files = readFileFolder(sourceFolder);
 		combinedTypeSolver.add(new JavaParserTypeSolver(new File(libs)));
 		combinedTypeSolver.add(new JavaParserTypeSolver(new File(sourceFolder)));
-		String outoutFile = "";
+		DiagramDescription outoutFile = null;
 		List<ClassOrInterfaceDeclaration> classOrInterfaces = new ArrayList<ClassOrInterfaceDeclaration>();
 
 		try {
@@ -76,8 +78,8 @@ public class JavaUMLParser {
 
 		try{
 			UMLGenerator generator = new UMLGenerator();
-			//finalUML.append(getStaticUML());
-			finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
+			finalUML.append(getStaticUML());
+			//finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
 			File file = new File(outputFileName);
@@ -140,6 +142,7 @@ public class JavaUMLParser {
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append("@startuml");
+		builder.append("\nleft to right direction");
 		/*builder.append("\ninterface B");
 		builder.append("\nclass A extends V implements B");
 		builder.append("\n}");*/
@@ -156,12 +159,12 @@ public class JavaUMLParser {
 		//builder.append("\ncomponent User");
 		//builder.append("\n A2 )- C2");
 		//builder.append("\n}");
-		builder.append("\ninterface A1");
-		builder.append("\ninterface A2");
-		builder.append("\nclass B1 extends P implements A1 {");
-		builder.append("\n}");
-		builder.append("\nclass B2 extends P implements A1,A2 {");
-		builder.append("\n}");
+		builder.append("\ncircle A1");
+		builder.append("\ncircle A2");
+		//builder.append("\nclass B1 extends P implements A1 {");
+		//builder.append("\n}");
+		//builder.append("\nclass B2 extends P implements A1,A2 {");
+		//builder.append("\n}");
 		builder.append("\nclass C1 {");
 		builder.append("\n+test : void()");
 		builder.append("\n}");
@@ -170,11 +173,18 @@ public class JavaUMLParser {
 		builder.append("\n}");
 		builder.append("\nclass P {");
 		builder.append("\n}");
-		builder.append("\nB1 ()- A1");
+		builder.append("\nC1 ..> A1");
+		builder.append("\nC2 --( A2");
+		builder.append("\nA1 <|.. B1");
+		builder.append("\nA1 <|.. B2");
+		builder.append("\nB1 --|> P");
+		builder.append("\nB2 --|> P");
+		builder.append("\nA2 -- B2");
+		/*builder.append("\nB1 ()- A1");
 		builder.append("\nB2 ()- A1");
 		builder.append("\nB2 ()- A2");
 		builder.append("\nA1 )-- C1");
-		builder.append("\nA2 )-- C2");
+		builder.append("\nA2 )-- C2");*/
 		builder.append("\n@enduml");
 		System.out.println(builder.toString());
 		return builder.toString();
