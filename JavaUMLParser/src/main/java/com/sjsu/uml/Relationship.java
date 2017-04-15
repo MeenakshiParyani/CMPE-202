@@ -7,7 +7,7 @@ package com.sjsu.uml;
  * @author Meenakshi
  *
  */
-public interface UMLRelationship {
+public interface Relationship {
 	
 	public String getSymbol();
 	public String getLabel();

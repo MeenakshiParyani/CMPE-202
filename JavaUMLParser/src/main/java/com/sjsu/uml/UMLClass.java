@@ -84,7 +84,7 @@ public class UMLClass {
 		this.umlRelations = umlRelations;
 	}
 	
-	public void addUmlRelartions(String[] umlRelation){
+	public void addUmlRelations(String[] umlRelation){
 		umlRelations.add(umlRelation);
 	}
 	

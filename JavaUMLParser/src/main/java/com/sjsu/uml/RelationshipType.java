@@ -9,7 +9,7 @@ package com.sjsu.uml;
  * @author Meenakshi
  *
  */
-public enum UMLRelationshipType implements UMLRelationship{
+public enum RelationshipType implements Relationship{
 	
 	
 	EXTENDS(" extends ", ""),
@@ -22,7 +22,7 @@ public enum UMLRelationshipType implements UMLRelationship{
 	private String symbol;
 	private String label;
 
-	private UMLRelationshipType(String symbol, String label){
+	private RelationshipType(String symbol, String label){
 		this.symbol = symbol;
 		this.label = label;
 	}

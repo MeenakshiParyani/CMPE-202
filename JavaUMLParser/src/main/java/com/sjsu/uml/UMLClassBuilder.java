@@ -14,6 +14,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.sjsu.parser.AssociationType;
 
@@ -86,7 +87,7 @@ public class UMLClassBuilder {
 	private void setImplementedTypes() {
 		NodeList<ClassOrInterfaceType> implementedTypes = classOrInterface.getExtendedTypes();
 		if(!implementedTypes.isEmpty()){
-			umlClass.setExtendedTypes(StringUtils.join(implementedTypes.iterator(), ','));
+			umlClass.setImplementedTypes(StringUtils.join(implementedTypes.iterator(), ','));
 		}
 	}
 
@@ -135,8 +136,23 @@ public class UMLClassBuilder {
 	}
 
 	private void setUMLRelations() {
-		// TODO Auto-generated method stub
+		getMethodDependencies();
 
+	}
+
+	private void getMethodDependencies() {
+		for(MethodDeclaration method : umlClass.getMethods()){
+			NodeList<Parameter> parameters = method.getParameters();
+			parameters.stream().forEach(parameter -> 
+			{	
+				String parameterClass = parameter.getType().toString();
+				ClassOrInterfaceDeclaration classOrInterfaceDeclaration = getClassOrInterfaceByName(parameterClass);
+				if(classOrInterfaceDeclaration != null && classOrInterfaceDeclaration.isInterface()){
+					umlClass.addUmlRelations(new String[]{classOrInterface.getNameAsString(), parameter.getType().toString(), RelationshipType.USES.toString()});
+				}
+			});
+		}
+		
 	}
 
 
