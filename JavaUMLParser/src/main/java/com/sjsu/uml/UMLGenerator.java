@@ -38,8 +38,6 @@ public class UMLGenerator {
 			getFieldsUML(builder, umlClass);
 			getMethodsUML(builder, umlClass);
 			addClosingUML(builder);
-			addClassOrInterfaceRelations(builder, umlClass.getUmlRelations(), false);
-			addClassOrInterfaceRelations(builder, umlClass.getUmlAssociations(), true);
 			removeDuplicateAssociations(umlClass.getUmlAssociations());
 			removeDuplicateRelationships(umlClass.getUmlRelations());
 		}
@@ -104,7 +102,11 @@ public class UMLGenerator {
 				relationship = Enum.valueOf(AssociationType.class, relation[2]);
 			else
 				relationship = Enum.valueOf(RelationshipType.class, relation[2]);
-			builder.append("\n" + relation[0] + relationship.getSymbol() + relation[1]); 
+			String label = relationship.getLabel();
+			String umlRelation = "\n" + relation[0] + relationship.getSymbol() + relation[1];
+			if(label != null && label != "")
+				umlRelation = umlRelation + " : " + label;
+			builder.append(umlRelation); 
 		}
 	}
 
@@ -165,9 +167,9 @@ public class UMLGenerator {
 			String containingClass = umlAssociation[0];
 			String containedClass = umlAssociation[1];
 			AssociationType associationType = Enum.valueOf(AssociationType.class, umlAssociation[2]);
-			boolean iPresent = this.umlAssociations.stream().anyMatch(p -> (associationType.equals(AssociationType.ONE_TO_ONE)  && 
-																			(p[0].equals(containedClass) && p[1].equals(containingClass))));
-			if(!iPresent){
+			boolean isPresent = this.umlAssociations.stream().anyMatch(p -> (associationType.equals(AssociationType.ONE_TO_ONE)  && 
+					OneToManyRelationExists(containedClass, containingClass) || ( p[0].equals(containedClass) &&  p[1].equals(containingClass))));
+			if(!isPresent){
 				this.umlAssociations.add(new String[]{containingClass, containedClass, associationType.toString()});
 			}
 
@@ -287,9 +289,6 @@ public class UMLGenerator {
 	}
 
 
-	
-	
-
 	/**
 	 * For given two class, checks if one to many relation exists
 	 * 
@@ -305,9 +304,9 @@ public class UMLGenerator {
 					String fieldClass = field.getVariable(0).getType().toString();
 					if(fieldClass.startsWith("Collection")){
 						fieldClass = StringUtils.substringBetween(fieldClass, "<", ">");
+						if(fieldClass.equalsIgnoreCase(containedClass))
+							return true;
 					}
-					if(fieldClass.equalsIgnoreCase(containedClass))
-						return true;
 				}
 			}
 		}
