@@ -37,6 +37,6 @@
 	<classpathentry kind="lib" path="src/main/resources/lib/slf4j-api.jar"/>
 	<classpathentry kind="lib" path="src/main/resources/lib/javaparser-core-sources.jar"/>
 	<classpathentry kind="lib" path="src/main/resources/lib/java-symbol-solver-core-sources.jar"/>
-	<classpathentry kind="lib" path="src/main/resources/lib/plantuml.8054.jar"/>
+	<classpathentry kind="lib" path="src/main/resources/lib/plantuml-09-Beta19.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

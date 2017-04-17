@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +19,8 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.sjsu.uml.UMLClass;
+import com.sjsu.uml.UMLClassBuilder;
 import com.sjsu.uml.UMLGenerator;
 
 import net.sourceforge.plantuml.FileFormat;
@@ -60,7 +61,7 @@ public class JavaUMLParser {
 		combinedTypeSolver.add(new JavaParserTypeSolver(new File(sourceFolder)));
 		DiagramDescription outoutFile = null;
 		List<ClassOrInterfaceDeclaration> classOrInterfaces = new ArrayList<ClassOrInterfaceDeclaration>();
-
+		List<UMLClass> umlClasses = new ArrayList<UMLClass>();
 		try {
 			for(File file : files) {
 				CompilationUnit compilationUnit = JavaParser.parse(file);
@@ -78,8 +79,13 @@ public class JavaUMLParser {
 
 		try{
 			UMLGenerator generator = new UMLGenerator();
-			finalUML.append(getStaticUML());
-			//finalUML.append(generator.getClassOrInterfaceUML(classOrInterfaces));
+			//finalUML.append(getStaticUML());
+
+			classOrInterfaces.stream().forEach(classOrInterface -> {
+				UMLClassBuilder umlClassBuilder = new UMLClassBuilder(classOrInterface, classOrInterfaces);
+				umlClasses.add(umlClassBuilder.buildUMLClass());
+			});
+			finalUML.append(generator.getClassOrInterfaceUML(umlClasses));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
 			String outputFileName = sourceFolder+ "\\output.png";
 			File file = new File(outputFileName);
@@ -137,9 +143,9 @@ public class JavaUMLParser {
 	private static boolean isJavaFile(File pathname) {
 		return pathname.getName().toLowerCase().endsWith(".java");
 	}
-	
+
 	public static String getStaticUML(){
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("@startuml");
 		builder.append("\nleft to right direction");
@@ -188,6 +194,6 @@ public class JavaUMLParser {
 		builder.append("\n@enduml");
 		System.out.println(builder.toString());
 		return builder.toString();
-		
+
 	}
 }
