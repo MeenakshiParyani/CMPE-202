@@ -87,7 +87,7 @@ public class UMLParser {
 			});
 			finalUML.append(generator.getClassOrInterfaceUML(umlClasses));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
-			String outputFileName = sourceFolder+ "\\output.png";
+			String outputFileName = sourceFolder+ "\\" + outputFile;
 			File file = new File(outputFileName);
 			if(file.exists())
 				file.delete();
