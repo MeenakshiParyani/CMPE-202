@@ -13,7 +13,7 @@ import com.sjsu.uml.Relationship;
  */
 public enum AssociationType implements Relationship{
 	
-	ONE_TO_ONE(" -- ", ""), 
+	ONE_TO_ONE(" -- \" 1\" ", ""), 
 	ONE_TO_MANY(" -- \" *\" ", "");
 	//MANY_TO_ONE(" \"*\" -- \"1\" "), 
 	//MANY_TO_MANY(" \"*\" -- \"*\" ");

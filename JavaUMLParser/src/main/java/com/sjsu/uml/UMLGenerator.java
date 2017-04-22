@@ -31,6 +31,7 @@ public class UMLGenerator {
 	public final List<UMLClass> umlClasses = new ArrayList<UMLClass>();
 	public String getClassOrInterfaceUML(List<UMLClass> umlClasses){
 		StringBuilder builder = new StringBuilder("@startuml");
+		builder.append("left to right direction");
 		this.umlClasses.addAll(umlClasses);
 		for(UMLClass umlClass : umlClasses) {
 			getClassOrInterfaceUML(builder, umlClass);
@@ -53,11 +54,7 @@ public class UMLGenerator {
 		for(ConstructorDeclaration constructorDeclaration : constructorDeclarations) {
 			builder.append("\n +" + constructorDeclaration.getNameAsString() + "(" );
 			NodeList<Parameter> parameters = constructorDeclaration.getParameters();
-			Map<String, String> paramterNameTypeMap = new HashMap<String, String>();
-			parameters.stream().forEach(parameter -> {
-				String className = parameter.getType().toString();
-				paramterNameTypeMap.put(parameter.getNameAsString(), className);
-			});
+			Map<String, String> paramterNameTypeMap = getParameterNameTypeMap(parameters);
 			builder.append(StringUtils.join(paramterNameTypeMap.entrySet(), ',').replaceAll("=", " : "));
 			builder.append(")");
 		}
@@ -122,7 +119,7 @@ public class UMLGenerator {
 		List<FieldDeclaration> fields = umlClass.getFields();
 		for(FieldDeclaration field : fields) {
 			String containedClass = field.getVariable(0).getType().toString();
-			if(getClassOrInterfaceByName(containedClass) != null || containedClass.startsWith("Collection")){
+			if(getClassOrInterfaceByName(containedClass) != null || UMLClassBuilder.isACollection(containedClass)){
 
 			}else {
 				String fieldName = field.getVariable(0).toString();
@@ -156,7 +153,7 @@ public class UMLGenerator {
 
 		}
 	}
-		
+
 	/**
 	 * Check if the association already exists to avoid duplicates
 	 * 
@@ -174,7 +171,7 @@ public class UMLGenerator {
 			}
 
 		}
-		
+
 	}
 
 	private void getMethodsUML(StringBuilder builder, UMLClass umlClass) {
@@ -183,8 +180,14 @@ public class UMLGenerator {
 		List<MethodDeclaration> filteredMethods = new ArrayList<MethodDeclaration>();
 		filteredMethods = methods.stream().filter(method -> !isGetterOrSetterMethod(umlClass, method.getNameAsString())).collect(Collectors.toList());
 		for(MethodDeclaration method : filteredMethods){
-			if(method.isPublic() /*&& isNotIncludedInParent(method.getNameAsString(), classOrInterface)*/)
-				builder.append("\n +" + method.getNameAsString() + "() : " + method.getType());
+			if(method.isPublic() /*&& isNotIncludedInParent(method.getNameAsString(), classOrInterface)*/){
+				builder.append("\n +" + method.getNameAsString() + "(");
+				NodeList<Parameter> parameters = method.getParameters();
+				Map<String, String> paramterNameTypeMap = getParameterNameTypeMap(parameters);
+				builder.append(StringUtils.join(paramterNameTypeMap.entrySet(), ',').replaceAll("=", " : "));
+				builder.append(") : " + method.getType());
+			}
+
 		}
 	}
 
@@ -230,7 +233,7 @@ public class UMLGenerator {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Check if the corresponding getter method exists for a given field
 	 * 
@@ -251,7 +254,7 @@ public class UMLGenerator {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Check if the corresponding setter method exists for a given field
 	 * 
@@ -302,7 +305,7 @@ public class UMLGenerator {
 				List<FieldDeclaration> fields = umlClass.getFields();
 				for(FieldDeclaration field : fields) {
 					String fieldClass = field.getVariable(0).getType().toString();
-					if(fieldClass.startsWith("Collection")){
+					if(UMLClassBuilder.isACollection(fieldClass)){
 						fieldClass = StringUtils.substringBetween(fieldClass, "<", ">");
 						if(fieldClass.equalsIgnoreCase(containedClass))
 							return true;
@@ -313,5 +316,13 @@ public class UMLGenerator {
 		return false;
 	}	
 
+	public Map<String, String> getParameterNameTypeMap(NodeList<Parameter> parameters){
+		Map<String, String> paramterNameTypeMap = new HashMap<String, String>();
+		parameters.stream().forEach(parameter -> {
+			String className = parameter.getType().toString();
+			paramterNameTypeMap.put(parameter.getNameAsString(), className);
+		});
+		return paramterNameTypeMap;
+	}
 
 }
