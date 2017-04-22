@@ -32,8 +32,8 @@ import net.sourceforge.plantuml.core.DiagramDescription;
  * @author Meenakshi
  *
  */
-public class JavaUMLParser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(JavaUMLParser.class);
+public class UMLParser {
+	private static final Logger LOGGER = LoggerFactory.getLogger(UMLParser.class);
 	public StringBuilder finalUML = new StringBuilder();
 	public static String libs = System.getProperty("java.home") + "\\lib";
 	public static CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
@@ -41,9 +41,9 @@ public class JavaUMLParser {
 	public static void main(String[] args) {
 		checkArgument(args != null, "Expected not null arguments.");
 		LOGGER.info("Hello World!");
-		String source = ".\\src\\test\\resources\\Test-Case-0";
-		String outputFile = "output.png";
-		JavaUMLParser javaUMLParser = new JavaUMLParser();
+		String source = args[0];
+		String outputFile = args[1];
+		UMLParser javaUMLParser = new UMLParser();
 		javaUMLParser.parse(source, outputFile);
 
 	}
