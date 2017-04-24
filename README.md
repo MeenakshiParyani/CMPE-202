@@ -2,13 +2,13 @@
 
 # Java UML Parser
 
-Technology stack
+Technology stack -
 Java
 
-Java Code Parsing Library
+Java Code Parsing Library - 
 JavaParser
 
-UML Diagram Generation Library
+UML Diagram Generation Library - 
 PlantUML
 
 # Run UML Parser
