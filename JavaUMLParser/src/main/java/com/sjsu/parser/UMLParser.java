@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.sjsu.uml.UMLClass;
 import com.sjsu.uml.UMLClassBuilder;
 import com.sjsu.uml.UMLGenerator;
@@ -35,8 +32,6 @@ import net.sourceforge.plantuml.core.DiagramDescription;
 public class UMLParser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UMLParser.class);
 	public StringBuilder finalUML = new StringBuilder();
-	public static String libs = System.getProperty("java.home") + "\\lib";
-	public static CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
 
 	public static void main(String[] args) {
 		checkArgument(args != null, "Expected not null arguments.");
@@ -57,8 +52,6 @@ public class UMLParser {
 	 */
 	public String parse(String sourceFolder, String outputFile){
 		File[] files = readFileFolder(sourceFolder);
-		combinedTypeSolver.add(new JavaParserTypeSolver(new File(libs)));
-		combinedTypeSolver.add(new JavaParserTypeSolver(new File(sourceFolder)));
 		DiagramDescription outoutFile = null;
 		List<ClassOrInterfaceDeclaration> classOrInterfaces = new ArrayList<ClassOrInterfaceDeclaration>();
 		List<UMLClass> umlClasses = new ArrayList<UMLClass>();
@@ -87,7 +80,7 @@ public class UMLParser {
 			});
 			finalUML.append(generator.getClassOrInterfaceUML(umlClasses));
 			SourceStringReader sourceStringReader = new SourceStringReader(finalUML.toString());
-			String outputFileName = sourceFolder+ "\\" + outputFile;
+			String outputFileName = sourceFolder+ File.separator + outputFile;
 			File file = new File(outputFileName);
 			if(file.exists())
 				file.delete();

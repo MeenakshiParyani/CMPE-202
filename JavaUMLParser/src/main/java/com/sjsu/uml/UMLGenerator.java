@@ -31,7 +31,6 @@ public class UMLGenerator {
 	public final List<UMLClass> umlClasses = new ArrayList<UMLClass>();
 	public String getClassOrInterfaceUML(List<UMLClass> umlClasses){
 		StringBuilder builder = new StringBuilder("@startuml");
-		builder.append("left to right direction");
 		this.umlClasses.addAll(umlClasses);
 		for(UMLClass umlClass : umlClasses) {
 			getClassOrInterfaceUML(builder, umlClass);
